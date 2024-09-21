@@ -2,18 +2,31 @@ package main
 
 import (
 	"fmt"
+	"lab_3/mathutils"
+	"lab_3/stringutils"
 	"math/rand"
 )
 
 func main() {
 
 	//1. Создать пакет mathutils с функцией для вычисления факториала числа.
-
-	fmt.Println()
 	//2. Использовать созданный пакет для вычисления факториала введенного пользователем числа.
+	fmt.Println("1-2. Факториал из пкета mathutils:")
+	var userInt int
+	fmt.Print("Введите число: ")
+	fmt.Scan(&userInt)
+	var result_first = mathutils.GetFactorial(userInt)
+	fmt.Println(result_first)
 
 	fmt.Println()
 	//3. Создать пакет stringutils с функцией для переворота строки и использовать его в основной программе.
+	fmt.Println("3. Переворот строки:")
+	var str string
+	fmt.Print("Введите строку: ")
+	fmt.Scan(&str)
+
+	stringutils.StringReverse(&str)
+	fmt.Print(str)
 
 	fmt.Println()
 	//4. Написать программу, которая создает массив из 5 целых чисел, заполняет его значениями и выводит их на экран.
