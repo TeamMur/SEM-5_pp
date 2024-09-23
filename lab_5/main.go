@@ -20,9 +20,11 @@ func main() {
 	fmt.Println()
 	//3. Создать структуру Circle с полем radius и метод для вычисления площади круга.
 	fmt.Println("3. Площадь круга:")
+
 	fmt.Print("Введите радиус круга: ")
 	var radius float64
 	fmt.Scan(&radius)
+
 	var circle Circle = Circle{radius: radius}
 	third_result := get_circle_area(circle)
 	fmt.Printf("Результат: %0.2f", third_result)
@@ -32,6 +34,7 @@ func main() {
 	//4. Создать интерфейс Shape с методом Area(). Реализовать этот интерфейс для структур Rectangle и Circle.
 	fmt.Println("4. Реализация интерфейса Shape и методов Area():")
 	rect := Rectangle{3, 5}
+
 	rect_area := rect.Area()
 	circle_area := circle.Area()
 	fmt.Printf("Площадь прямоугольника - %0.2f, Площадь круга - %0.2f", rect_area, circle_area)

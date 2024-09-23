@@ -9,8 +9,8 @@ func main() {
 	//1. Написать программу, которая создает карту с именами людей и их возрастами. Добавить нового человека и вывести все записи на экран.
 	fmt.Println("1. Карта с именами и возрастами:")
 
-	fmt.Println("Карта до изменений:")
 	persons := map[string]int{"Тимур": 20, "Миша": 19}
+	fmt.Println("Карта до изменений:")
 	fmt.Println(persons)
 
 	fmt.Println("Карта после изменений:")
@@ -30,8 +30,8 @@ func main() {
 	fmt.Println("Карта до изменений:")
 	fmt.Println(persons)
 
-	fmt.Println("Карта после изменений:")
 	delete(persons, "Миша")
+	fmt.Println("Карта после изменений:")
 	fmt.Println(persons)
 
 	fmt.Println()
@@ -73,8 +73,10 @@ func main() {
 		fmt.Scan(&new_num)
 		nums = append(nums, new_num)
 	}
+
 	fmt.Println("Ваш массив:")
 	fmt.Println(nums)
+
 	fmt.Println("Вывод массива в обратном порядке:")
 	for i := user_num_count - 1; i >= 0; i-- {
 		fmt.Print(nums[i], " ")

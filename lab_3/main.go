@@ -12,17 +12,20 @@ func main() {
 	//1. Создать пакет mathutils с функцией для вычисления факториала числа.
 	//2. Использовать созданный пакет для вычисления факториала введенного пользователем числа.
 	fmt.Println("1-2. Факториал из пкета mathutils:")
-	var userInt int
+
 	fmt.Print("Введите число: ")
+	var userInt int
 	fmt.Scan(&userInt)
+
 	var result_first = mathutils.GetFactorial(userInt)
 	fmt.Println(result_first)
 
 	fmt.Println()
 	//3. Создать пакет stringutils с функцией для переворота строки и использовать его в основной программе.
 	fmt.Println("3. Переворот строки:")
-	var str string
+
 	fmt.Print("Введите строку: ")
+	var str string
 	fmt.Scan(&str)
 
 	stringutils.StringReverse(&str)
@@ -46,6 +49,7 @@ func main() {
 
 	new_num := 100
 	slice = append(slice, new_num)
+
 	id := 2
 	slice = append(slice[:id], slice[id+1:]...)
 
