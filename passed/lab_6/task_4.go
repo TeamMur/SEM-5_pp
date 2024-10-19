@@ -22,7 +22,7 @@ func task_4() {
 
 	var mutex sync.Mutex
 
-	var iter int = 10
+	var iter int = 100
 	fmt.Println("с синхронизацией:")
 	for i := 0; i < iter; i++ {
 		go func() {
