@@ -6,27 +6,18 @@ package main
 //GET /hello — возвращает приветственное сообщение.
 //POST /data — принимает данные в формате JSON и выводит их содержимое в консоль.
 
-//ЗАПУСКАЙ В БРАУЗЕРЕ АДРЕС "localhost:8080/папка"
-//параметры в запросе:
-//url&name=value&name2=value2
-//example.com?name=value
-
-//ЗАПУСКАЙ ИЗ КОНСОЛИ (ДЛЯ КОНКРЕТНЫХ ЗАПРОСОВ)
-//curl -X POST -d "name=value" url
-
-//request - запрос
-//responce - ответ
-
-//HandleFunc
-//первый параметр - папка в которой будет обработка
-//второй - функция - ответ на любой запрос в указанной папке
+// 5.	Добавление маршрутизации и middleware:
+//   •	Реализуйте обработку нескольких маршрутов и добавьте middleware для логирования входящих запросов.
+//   •	Middleware должен логировать метод, URL, и время выполнения каждого запроса.
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type User struct {
@@ -35,6 +26,15 @@ type User struct {
 }
 
 var wg sync.WaitGroup
+
+// Middleware обработчик-логгер НОВОЕ В 5 ЗАДАНИИ
+func loggingMuddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		log.Printf("Request: %s %s %s", r.Method, r.RequestURI, time.Since(start))
+	})
+}
 
 func getHandler(w http.ResponseWriter, r *http.Request) {
 	//w - интерфейс для отправки ответа клиенту
@@ -63,9 +63,9 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	//триггеры
-	http.HandleFunc("/hello", getHandler)
-	http.HandleFunc("/data", postHandler)
+	//триггеры обернутые в логгер НОВОЕ В 5 ЗАДАНИИ
+	http.Handle("/hello", loggingMuddleware(http.HandlerFunc(getHandler)))
+	http.Handle("/data", loggingMuddleware(http.HandlerFunc(postHandler)))
 
 	//запуск сервера !ATTENTION! блокирует поток до закрытия сервера поэтому отдельная горутина
 	wg.Add(1)
@@ -84,4 +84,5 @@ func main() {
 	}
 	wg.Wait()               //сервер будет работать бесконечно, пока мы вручную не закрое, т.к. нет ни одного wg.Done()
 	defer resp.Body.Close() //закрытие сервера (*но не по факту)
+
 }
