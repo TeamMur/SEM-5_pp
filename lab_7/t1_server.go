@@ -7,6 +7,8 @@ package main
 
 //ЗАПУСКАТЬ В ОТДЕЛЬНОЙ cmd перед клиентом
 
+//NOTE: в коде нет обработки или вывода ошибок
+
 import (
 	"fmt"
 	"net"
@@ -14,21 +16,14 @@ import (
 
 func main() {
 	//создание сервера
-	listener, err := net.Listen("tcp", "localhost:8080")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	listener, _ := net.Listen("tcp", "localhost:8080")
+
 	defer listener.Close()
 	//ожидание клиента
 	fmt.Println("Ожидание подключения")
 	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Println(err)
-			conn.Close()
-			continue
-		}
+		conn, _ := listener.Accept()
+		//запуск подключения в отдельной горутине
 		fmt.Println("подключено")
 		go handleConnection(conn)
 	}
@@ -46,8 +41,8 @@ func handleConnection(conn net.Conn) {
 	if err != nil {
 		fmt.Println("Ошибка чтения:", err)
 	}
-	source := string(input[0:n])
 	// вывод
+	source := string(input[0:n])
 	fmt.Println("сервер: слово - ", source)
 	// отправка сообщения клиенту (всякий Read ожидает Write)
 	conn.Write([]byte("сервер: новое сообщение"))

@@ -10,6 +10,8 @@ package main
 //   •	Реализуйте обработку нескольких маршрутов и добавьте middleware для логирования входящих запросов.
 //   •	Middleware должен логировать метод, URL, и время выполнения каждого запроса.
 
+//NOTE: в коде нет обработки или вывода ошибок
+
 import (
 	"bytes"
 	"encoding/json"
@@ -52,11 +54,7 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 func postHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		var user User
-		err := json.NewDecoder(r.Body).Decode(&user)
-		if err != nil {
-			fmt.Println("Ошибка при декодировании")
-			return
-		}
+		json.NewDecoder(r.Body).Decode(&user)
 		defer r.Body.Close() //WHY
 		fmt.Println("Получено: ", user)
 	}
@@ -68,21 +66,15 @@ func main() {
 	http.Handle("/data", loggingMuddleware(http.HandlerFunc(postHandler)))
 
 	//запуск сервера !ATTENTION! блокирует поток до закрытия сервера поэтому отдельная горутина
-	wg.Add(1)
 	go func() {
-		err2 := http.ListenAndServe("localhost:8080", nil)
-		if err2 != nil {
-			fmt.Println("Ошибка при запуске сервера:", err2)
-		}
+		http.ListenAndServe("localhost:8080", nil)
 	}()
 
 	//отправка запроса POST ! только после запуска сервера
 	jsonStr := []byte(`{"name":"Тимур", "age":20}`)
-	resp, err := http.Post("http://localhost:8080/data", "application/json", bytes.NewBuffer(jsonStr)) //адрес, тип данных, данные в нужном формате
-	if err != nil {
-		panic(err)
-	}
-	wg.Wait()               //сервер будет работать бесконечно, пока мы вручную не закрое, т.к. нет ни одного wg.Done()
-	defer resp.Body.Close() //закрытие сервера (*но не по факту)
+	http.Post("http://localhost:8080/data", "application/json", bytes.NewBuffer(jsonStr)) //адрес, тип данных, данные в нужном формате
 
+	//сервер будет работать бесконечно, пока мы вручную не закроем, т.к. нет ни одного wg.Done()
+	wg.Add(1)
+	wg.Wait()
 }

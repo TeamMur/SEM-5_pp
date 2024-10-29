@@ -8,8 +8,9 @@ package main
 
 //ЗАПУСКАЙ В БРАУЗЕРЕ АДРЕС "localhost:8080/папка"
 //параметры в запросе:
-//url&name=value&name2=value2
+//url?name=value&name2=value2
 //example.com?name=value
+//http://localhost:8080/hello?name=timur
 
 //ЗАПУСКАЙ ИЗ КОНСОЛИ (ДЛЯ КОНКРЕТНЫХ ЗАПРОСОВ)
 //curl -X POST -d "name=value" url

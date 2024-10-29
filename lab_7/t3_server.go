@@ -7,6 +7,8 @@ package main
 
 //каждый клиент способен отдавать лишь 1 сообщение (так требовало 2 задание)
 
+//NOTE: в коде нет обработки или вывода ошибок
+
 import (
 	"fmt"
 	"net"
@@ -26,20 +28,12 @@ func main() {
 	fmt.Scan(&clientsTest)
 
 	//создание сервера
-	listener, err := net.Listen("tcp", "localhost:8080")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	listener, _ := net.Listen("tcp", "localhost:8080")
+
 	//ожидание клиента
 	fmt.Println("Ожидание подключения")
 	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Println(err)
-			conn.Close()
-			continue
-		}
+		conn, _ := listener.Accept()
 
 		wg.Add(1)
 		go handleConnection(conn)
