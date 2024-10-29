@@ -20,12 +20,15 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Хранилище подключений
+// карта (массив) подключений
 var clients = make(map[*websocket.Conn]bool)
-var broadcast = make(chan string)
+
+// канал передачи текста (сообщений)
+var mChan = make(chan string)
 
 // преобразователь http-соединения в websocket-соединение
 var upgrader = websocket.Upgrader{
+	//??
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
@@ -42,7 +45,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		//чтение сообщения (type, string, err: type и err опущены)
 		_, msg, _ := ws.ReadMessage()
 		//размещение сообщения в канал
-		broadcast <- string(msg)
+		mChan <- string(msg)
 	}
 }
 
@@ -51,7 +54,7 @@ func handleMessages() {
 	//бесконечный цикл с итерацией лишь при каждом получении строки в канал
 	for {
 		//получение сообщения
-		msg := <-broadcast
+		msg := <-mChan
 		fmt.Println("Запрошена отправка: ", msg)
 
 		//отправка сообщения всем клиентам
