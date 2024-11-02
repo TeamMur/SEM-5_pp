@@ -69,7 +69,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	//GET /users/{id} — получение информации о конкретном пользователе
 	if r.Method == http.MethodGet {
 		//получение id и конвертация в int
-		base := path.Base(r.RequestURI)
+		base := path.Base(r.URL.Path)
 		id, _ := strconv.Atoi(base)
 		//Выборка
 		var user User
@@ -95,7 +95,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//получение id и конвертация в int
-		base := path.Base(r.RequestURI)
+		base := path.Base(r.URL.Path)
 		id, _ := strconv.Atoi(base)
 
 		//обновление
@@ -105,7 +105,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	//DELETE /users/{id} — удаление пользователя
 	if r.Method == http.MethodDelete {
 		//получение id и конвертация в int
-		base := path.Base(r.RequestURI)
+		base := path.Base(r.URL.Path)
 		id, _ := strconv.Atoi(base)
 
 		//Удаление
@@ -142,7 +142,7 @@ func loggingMuddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		next.ServeHTTP(w, r)
-		log.Printf("Request: %s %s %s", r.Method, r.RequestURI, time.Since(start))
+		log.Printf("Request: %s %s %s", r.Method, r.URL.Path, time.Since(start))
 	})
 }
 

@@ -54,7 +54,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	//GET /users/{id} — получение информации о конкретном пользователе
 	if r.Method == http.MethodGet {
 		//получение id и конвертация в int
-		base := path.Base(r.RequestURI)
+		base := path.Base(r.URL.Path)
 		id, _ := strconv.Atoi(base)
 		//отправка
 		data := users[id]
@@ -67,7 +67,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewDecoder(r.Body).Decode(&user)
 
 		//получение id и конвертация в int
-		base := path.Base(r.RequestURI)
+		base := path.Base(r.URL.Path)
 		id, _ := strconv.Atoi(base)
 
 		//добавление элемента
@@ -77,7 +77,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	//DELETE /users/{id} — удаление пользователя
 	if r.Method == http.MethodDelete {
 		//получение id и конвертация в int
-		base := path.Base(r.RequestURI)
+		base := path.Base(r.URL.Path)
 		id, _ := strconv.Atoi(base)
 		//удаление элемента
 		// users = append(users[:id], users[id+1:]...)
@@ -114,7 +114,7 @@ func loggingMuddleware(next http.Handler) http.Handler {
 //curl -X POST -H "Content-Type: application/json" -d '{"name": "Тимур", "age": 20}' http://localhost:8080/users
 //curl -X POST -H "Content-Type: application/json" -d "{\"name\": \"Тимур\", \"age\": 20}" http://localhost:8080/users
 // PUT
-//curl -X PUT -H "Content-Type: application/json" -d '{"name": "Новый Типур", "age": 21}' http://localhost:8080/users/2
-//curl -X PUT -H "Content-Type: application/json" -d "{\"name\": \"Новый Типур\", \"age\": 21}" http://localhost:8080/users/2
+//curl -X PUT -H "Content-Type: application/json" -d '{"name": "Бахром", "age": 20}' http://localhost:8080/users/2
+//curl -X PUT -H "Content-Type: application/json" -d "{\"name\": \"Бахром\", \"age\": 20}" http://localhost:8080/users/2
 // DELETE
 //curl -X DELETE http://localhost:8080/users/1

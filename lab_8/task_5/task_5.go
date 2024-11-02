@@ -1,9 +1,8 @@
 package main
 
-// 4.	Пагинация и фильтрация:
-//   •	Добавьте поддержку пагинации и фильтрации по параметрам запроса (например, поиск пользователей по имени или возрасту).
-//пагинация - LIMIT n   /  OFFSET n
-//фильтрация - WHERE x = y
+// 5.	Тестирование API:
+//   •	Реализуйте unit-тесты для каждого маршрута.
+//   •	Проверьте корректность работы при различных вводных данных.
 
 import (
 	"database/sql"
@@ -30,15 +29,11 @@ func usersHandler(w http.ResponseWriter, r *http.Request) {
 	//GET /users — получение списка пользователей
 	if r.Method == http.MethodGet {
 		//получение переменных из запроса
-		limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
-		offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+		offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 		nameF := r.URL.Query().Get("name")
-		ageF, err := strconv.Atoi(r.URL.Query().Get("age"))
-		//обработка ошибок
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		ageF, _ := strconv.Atoi(r.URL.Query().Get("age"))
+
 		//формирование запроса (с валидацией)
 		query := "SELECT * from users"
 		if nameF != "" || ageF > 0 {
@@ -86,14 +81,15 @@ func usersHandler(w http.ResponseWriter, r *http.Request) {
 		//получение данных (переменная user - то куда декодер поместит данные)
 		var user User
 		err := json.NewDecoder(r.Body).Decode(&user)
+
 		//валидация и обработка ошибок
 		if err != nil || user.Name == "" || user.Age <= 0 {
 			http.Error(w, "Неверный формат или невозможные значения данных", http.StatusBadRequest)
 			return
 		}
-
 		//добавление элемента
 		db.Exec("INSERT INTO users (name, age) values ($1, $2)", user.Name, user.Age)
+
 	}
 }
 
@@ -104,6 +100,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		//получение id и конвертация в int
 		base := path.Base(r.URL.Path)
 		id, _ := strconv.Atoi(base)
+
 		//Выборка
 		var user User
 		err := db.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(&user.ID, &user.Name, &user.Age)
