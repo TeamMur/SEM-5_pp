@@ -68,8 +68,8 @@ func handleConnection(conn net.Conn) {
 	if err != nil {
 		fmt.Println("Ошибка чтения:", err)
 	}
-	source := string(input[0:n])
 	// вывод
+	source := string(input[0:n])
 	fmt.Println("сервер: получено - ", source)
 	// отправка сообщения клиенту (всякий Read ожидает Write)
 	conn.Write([]byte("сервер: новое сообщение"))

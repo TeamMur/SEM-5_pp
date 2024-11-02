@@ -28,7 +28,7 @@ var mChan = make(chan string)
 
 // преобразователь http-соединения в websocket-соединение
 var upgrader = websocket.Upgrader{
-	//??
+	//WHY
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 

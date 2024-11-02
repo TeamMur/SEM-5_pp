@@ -17,8 +17,8 @@ import (
 func main() {
 	//создание сервера
 	listener, _ := net.Listen("tcp", "localhost:8080")
-
 	defer listener.Close()
+
 	//ожидание клиента
 	fmt.Println("Ожидание подключения")
 	for {
@@ -41,9 +41,9 @@ func handleConnection(conn net.Conn) {
 	if err != nil {
 		fmt.Println("Ошибка чтения:", err)
 	}
-	// вывод
+	//вывод
 	source := string(input[0:n])
 	fmt.Println("сервер: слово - ", source)
-	// отправка сообщения клиенту (всякий Read ожидает Write)
+	//отправка сообщения клиенту (всякий Read ожидает Write)
 	conn.Write([]byte("сервер: новое сообщение"))
 }
