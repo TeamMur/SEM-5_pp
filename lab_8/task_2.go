@@ -52,7 +52,12 @@ func usersHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		//получение данных (переменная user - то куда декодер поместит данные)
 		var user User
-		json.NewDecoder(r.Body).Decode(&user)
+		err := json.NewDecoder(r.Body).Decode(&user)
+		//валидация и обработка ошибок
+		if err != nil || user.Name == "" || user.Age <= 0 {
+			http.Error(w, "Неверный формат или невозможные значения данных", http.StatusBadRequest)
+			return
+		}
 
 		//добавление элемента
 		db.Exec("INSERT INTO users (name, age) values ($1, $2)", user.Name, user.Age)
@@ -81,7 +86,13 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
 		//получение данных (переменная user - то куда декодер поместит данные)
 		var user User
-		json.NewDecoder(r.Body).Decode(&user)
+		err := json.NewDecoder(r.Body).Decode(&user)
+
+		//валидация и обработка ошибок
+		if err != nil || user.Name == "" || user.Age <= 0 {
+			http.Error(w, "Неверный формат или невозможные значения данных", http.StatusBadRequest)
+			return
+		}
 
 		//получение id и конвертация в int
 		base := path.Base(r.RequestURI)
@@ -96,8 +107,15 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		//получение id и конвертация в int
 		base := path.Base(r.RequestURI)
 		id, _ := strconv.Atoi(base)
+
 		//Удаление
-		db.Exec("DELETE FROM users WHERE id = $1", id)
+		_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
+
+		//обработка ошибок
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -107,7 +125,6 @@ func main() {
 	//подключение к бд
 	connStr := "user=postgres password=123 dbname=go_lab8 sslmode=disable"
 	db, _ = sql.Open("postgres", connStr)
-	// defer db.Close()
 
 	//триггеры
 	http.Handle("/users", loggingMuddleware(http.HandlerFunc(usersHandler)))
