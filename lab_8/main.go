@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 func main() {
-	task_4()
+	fmt.Println("Привет")
 }
