@@ -28,9 +28,15 @@ var sessionToken string
 func authorization(login string, password string) error {
 	//отправка данных через post
 	person := Person{login, password}
-	data, _ := json.Marshal(person)
-	w, _ := http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
+	data, err := json.Marshal(person)
+	if err != nil {
+		return err
+	}
 
+	w, err := http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
 	//помещение токена в переменную | сохранение токена
 	//предполагаю w.Header.Get("Authorization") блокирует функцию до вызова w.Header().Set("Authorization", token)
 	if w.StatusCode == http.StatusOK {
@@ -44,8 +50,10 @@ func authorization(login string, password string) error {
 // преобразование http.NewRequest
 func authorizedRequest(method string, url string, body io.Reader) (*http.Request, error) {
 	//создание "настоящего" реквеста
-	r, _ := http.NewRequest(method, url, body)
-
+	r, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return r, err
+	}
 	//установка токена
 	r.Header.Set("Authorization", sessionToken)
 
