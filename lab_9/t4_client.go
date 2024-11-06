@@ -1,31 +1,80 @@
 package main
 
-// 1.	Создание клиентской программы:
-//   •	Напишите клиентское приложение, которое отправляет запросы на ваш сервер.
-//   •	Реализуйте простое меню с возможностью выполнения CRUD операций.
-
-// 2.	Обработка ответов:
-//   •	Реализуйте механизм обработки ответов и ошибок.
-//   •	Добавьте функции для форматирования и вывода полученных данных на экран.
-
-// 3.	Интерфейс пользователя:
-//   •	Разработайте консольный интерфейс с меню для пользователя.
-//   •	Включите возможность добавления, удаления и обновления информации о пользователях.
+// 4.	Авторизация пользователя:
+//   •	Добавьте поддержку авторизации пользователя.
+//   •	Клиент должен сохранять токен сессии и передавать его в заголовках последующих запросов.
 
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
 )
 
+// User уже занято под таблицу
+type Person struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
+
+var sessionToken string
+
+// отправка данных
+func authorization(login string, password string) error {
+	//отправка данных через post
+	person := Person{login, password}
+	data, _ := json.Marshal(person)
+	w, _ := http.Post("http://localhost:8080/login", "application/json", bytes.NewBuffer(data))
+
+	//помещение токена в переменную | сохранение токена
+	//предполагаю w.Header.Get("Authorization") блокирует функцию до вызова w.Header().Set("Authorization", token)
+	if w.StatusCode == http.StatusOK {
+		sessionToken = w.Header.Get("Authorization")
+		fmt.Println("Авторизация успешна. Токен сессии: ", sessionToken)
+		return nil
+	}
+	return errors.New("Ошибка авторизации")
+}
+
+// преобразование http.NewRequest
+func authorizedRequest(method string, url string, body io.Reader) (*http.Request, error) {
+	//создание "настоящего" реквеста
+	r, _ := http.NewRequest(method, url, body)
+
+	//установка токена
+	r.Header.Set("Authorization", sessionToken)
+
+	return r, nil
+}
+
 func main() {
+	// Авторизация
+	for {
+		fmt.Print("Введите логин: ")
+		var login string
+		fmt.Scan(&login)
+
+		fmt.Print("Введите пароль: ")
+		var password string
+		fmt.Scan(&password)
+
+		// отправка данных серверу
+		err := authorization(login, password)
+		if err != nil {
+			fmt.Println("Неверный логин или пароль")
+		} else {
+			break
+		}
+	}
+
 	//Консольное приложение
 	//ВЫБОР ОПЕРАЦИИ
-	fmt.Println("Приветствую вас! Эта программа предназначена для работы с базой данных")
+	fmt.Println("\nПриветствую вас! Эта программа предназначена для работы с базой данных")
 
 	const (
 		sPost   string = "1. POST - создать данные"
@@ -124,7 +173,7 @@ func main() {
 // ОПЕРАЦИИ
 func Get() {
 	//создание http-запроса
-	r, err := http.NewRequest("GET", "/users", nil)
+	r, err := authorizedRequest("GET", "/users", nil)
 	if err != nil {
 		fmt.Println("Ошибка: ", err)
 		return
@@ -149,7 +198,7 @@ func Get() {
 func GetOne(id int) {
 	//создание http-запроса
 	nPath := "/users/" + strconv.Itoa(id)
-	r, err := http.NewRequest("GET", nPath, nil)
+	r, err := authorizedRequest("GET", nPath, nil)
 	if err != nil {
 		fmt.Println("Ошибка: ", err)
 		return
@@ -164,7 +213,7 @@ func GetOne(id int) {
 	//проверка статуса запроса
 	if status := w.Code; status != http.StatusOK {
 		fmt.Printf("GetOne Неверный код ответа: получили %v, ожидали %v\n", status, http.StatusOK)
-		fmt.Println("Вероятно, вы указали несуществующий id")
+		fmt.Println("Вероятно, вы указали не существующий id")
 		return
 	}
 
@@ -178,7 +227,7 @@ func Post(name string, age int) {
 	data, _ := json.Marshal(nUser)
 
 	//создание http-запроса
-	r, err := http.NewRequest("POST", "/users", bytes.NewBuffer(data))
+	r, err := authorizedRequest("POST", "/users", bytes.NewBuffer(data))
 	r.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		fmt.Println("Ошибка: ", err)
@@ -207,7 +256,7 @@ func Put(id int, name string, age int) {
 
 	//создание http-запроса
 	nPath := "/users/" + strconv.Itoa(id)
-	r, err := http.NewRequest("PUT", nPath, bytes.NewBuffer(data))
+	r, err := authorizedRequest("PUT", nPath, bytes.NewBuffer(data))
 	r.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		fmt.Println("Ошибка: ", err)
@@ -223,7 +272,7 @@ func Put(id int, name string, age int) {
 	//проверка статуса запроса
 	if status := w.Code; status != http.StatusOK {
 		fmt.Printf("Put Неверный код ответа: получили %v, ожидали %v\n", status, http.StatusOK)
-		fmt.Println("Вероятно, вы указали несуществующий id")
+		fmt.Println("Вероятно, вы указали не существующий id")
 		return
 	}
 
@@ -233,7 +282,7 @@ func Put(id int, name string, age int) {
 func Delete(id int) {
 	//создание http-запроса
 	nPath := "/users/" + strconv.Itoa(id)
-	r, err := http.NewRequest("DELETE", nPath, nil)
+	r, err := authorizedRequest("DELETE", nPath, nil)
 	if err != nil {
 		fmt.Println("Ошибка: ", err)
 		return
@@ -248,7 +297,7 @@ func Delete(id int) {
 	//проверка статуса запроса
 	if status := w.Code; status != http.StatusOK {
 		fmt.Printf("Delete Неверный код ответа: получили %v, ожидали %v\n", status, http.StatusOK)
-		fmt.Println("Вероятно, вы указали несуществующий id")
+		fmt.Println("Вероятно, вы указали не существующий id")
 		return
 	}
 

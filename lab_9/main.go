@@ -18,6 +18,9 @@ import (
 //   •	Включите возможность добавления, удаления и обновления информации о пользователях.
 
 func main() {
+	persons["Тимур"] = "lab_9"
+
 	fmt.Println("Сервер успешно запущен")
+	http.HandleFunc("/login", authorizeUser)
 	http.ListenAndServe("localhost:8080", nil)
 }
