@@ -80,7 +80,7 @@ func decrypt(s string, k string) string {
 }
 
 func main() {
-	enc := encrypt("Привет Тимур", "попа")
+	enc := encrypt("Привет Тимур", "ключ")
 	fmt.Println(enc)
-	fmt.Println(decrypt(enc, "попа"))
+	fmt.Println(decrypt(enc, "ключ"))
 }
